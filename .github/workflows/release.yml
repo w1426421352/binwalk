@@ -1,0 +1,48 @@
+name: Release Build
+
+on:
+  workflow_dispatch:  # 手动触发工作流
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]  # 支持 Linux、macOS 和 Windows
+        include:
+          - os: ubuntu-latest
+            target: x86_64-unknown-linux-gnu
+          - os: macos-latest
+            target: x86_64-apple-darwin
+          - os: windows-latest
+            target: x86_64-pc-windows-msvc
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Set up Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          components: clippy, rustfmt
+
+      - name: Build the project
+        run: |
+          rustup target add ${{ matrix.target }}  # 添加目标平台
+          cargo build --release --target ${{ matrix.target }}
+
+      - name: List build artifacts
+        run: |
+          ls -l target/${{ matrix.target }}/release
+
+      - name: Upload binary to GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: target/${{ matrix.target }}/release/binwalk  # 根据你的项目调整二进制文件名
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Generate release notes
+        run: |
+          echo "Release notes generated"
