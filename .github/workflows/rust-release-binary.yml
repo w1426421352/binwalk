@@ -3,7 +3,9 @@ name: Release Build
 on:
   push:
     tags:
-      - 'v*'
+      - 'v*'   # 标签推送触发
+  workflow_dispatch:  # 手动触发
+
 jobs:
   release:
     name: Release - ${{ matrix.platform.os-name }}
