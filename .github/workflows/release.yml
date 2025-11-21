@@ -39,6 +39,12 @@ jobs:
         run: |
           ls -l target/${{ matrix.target }}/release
 
+      - name: Create a tag (if not exists)
+        run: |
+          TAG_NAME=$(date +'%Y%m%d%H%M%S')  # Create a tag based on current timestamp
+          git tag $TAG_NAME
+          git push origin $TAG_NAME
+
       - name: Upload binary to GitHub Release
         uses: softprops/action-gh-release@v1
         with:
